@@ -116,7 +116,7 @@ export default function VerifyOTP() {
                     <TextField
                       inputRef={(el) => (otpRefs.current[index] = el)}
                       value={otpValues[index]}
-                      onChange={(e) => handleOTPChange(e, index)}
+                      onChange={(e) => handleOTPChange(e as React.ChangeEvent<HTMLInputElement>, index)}
                       inputProps={{
                         maxLength: 1,
                         inputMode: "numeric",
