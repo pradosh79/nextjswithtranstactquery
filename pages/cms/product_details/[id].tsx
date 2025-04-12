@@ -49,7 +49,7 @@ export default function ProductDetails() {
         }
       }, [product, reset]);
     
-      const onSubmit = async (data: productDetail) => {
+      const onSubmit = async (data: any) => {
         try {
           const payload = {
             ...data,
@@ -97,7 +97,6 @@ export default function ProductDetails() {
               margin="normal"
               fullWidth
               error={!!errors.name}
-              helperText={errors.name?.message}
             />
 
             <TextField
@@ -113,7 +112,6 @@ export default function ProductDetails() {
               margin="normal"
               fullWidth
               error={!!errors.price}
-              helperText={errors.price?.message}
             />
 
             <TextField
@@ -125,7 +123,6 @@ export default function ProductDetails() {
               multiline
               rows={3}
               error={!!errors.description}
-              helperText={errors.description?.message}
             />
 
             <TextField
@@ -135,7 +132,6 @@ export default function ProductDetails() {
               margin="normal"
               fullWidth
               error={!!errors.category}
-              helperText={errors.category?.message}
             />
 
             <Button
