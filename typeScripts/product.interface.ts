@@ -45,7 +45,17 @@ export interface IproductDetailsProps {
     price: number;
   }
 
-
+  export interface Product {
+    _id: string;
+    name: string;
+    price: number;
+    category: string;
+    description?: string;
+  }
+  
+  export interface IProductListProps {
+    product: Product[]; // 👈 this should be an array
+  }
 export interface productList extends IproductListProps {
     product: IproductListProps
 }

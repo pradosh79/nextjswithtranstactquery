@@ -1,9 +1,9 @@
 import React from 'react';
 import { useQuery } from "@tanstack/react-query";
-import { productList } from "../../../typeScripts/product.interface";
-import { productListQuery, useProductDeleteMutation  } from '@/customhooks/queries/product.query.hooks';
-import Link from "next/link";
+import { IProductListProps } from "../../../typeScripts/product.interface";
+import { productListQuery, useProductDeleteMutation } from '@/customhooks/queries/product.query.hooks';
 import { useRouter } from 'next/router';
+import Link from "next/link";
 import {
   Box,
   Card,
@@ -17,7 +17,7 @@ import {
 import { Delete, Edit } from '@mui/icons-material';
 
 export default function ProductList() {
-  const { data, isLoading, isError, error,isPending: isDeleting } = productListQuery();
+  const { data, isLoading, isError, error, isPending: isDeleting } = productListQuery();
   const { mutate: deleteProduct } = useProductDeleteMutation();
   const router = useRouter();
 
@@ -32,7 +32,9 @@ export default function ProductList() {
   if (isError) {
     return (
       <Box textAlign="center" mt={4}>
-        <Typography color="error">Error: {error instanceof Error ? error.message : "Something went wrong"}</Typography>
+        <Typography color="error">
+          Error: {error instanceof Error ? error.message : "Something went wrong"}
+        </Typography>
       </Box>
     );
   }
@@ -43,10 +45,12 @@ export default function ProductList() {
 
   const handleDelete = (id: string) => {
     if (confirm("Are you sure you want to delete this product?")) {
-      deleteProduct(Number(id));
-      window.location.reload();
+      deleteProduct(Number(id)); // make sure your backend expects a number
+      window.location.reload(); // optional: better to use queryClient.invalidateQueries
     }
   };
+
+  const products = data?.product ?? []; // fallback to empty array if undefined
 
   return (
     <Box sx={{ p: 4 }}>
@@ -55,7 +59,7 @@ export default function ProductList() {
       </Typography>
 
       <Grid container spacing={3}>
-      {data?.product.map((item) => (
+        {products.map((item) => (
           <Grid item xs={12} sm={6} md={4} key={item._id}>
             <Card sx={{ position: 'relative', minHeight: 200 }}>
               <CardContent>
