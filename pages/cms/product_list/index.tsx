@@ -43,7 +43,7 @@ export default function ProductList() {
 
   const handleDelete = (id: string) => {
     if (confirm("Are you sure you want to delete this product?")) {
-      deleteProduct(id);
+      deleteProduct(Number(id));
       window.location.reload();
     }
   };
@@ -55,7 +55,7 @@ export default function ProductList() {
       </Typography>
 
       <Grid container spacing={3}>
-        {data.product.map((item) => (
+      {data?.product.map((item) => (
           <Grid item xs={12} sm={6} md={4} key={item._id}>
             <Card sx={{ position: 'relative', minHeight: 200 }}>
               <CardContent>
