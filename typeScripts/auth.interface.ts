@@ -3,7 +3,7 @@ export interface IloginProps {
     password: string,
     token: string,
     message: string,
-    status: string
+    status: boolean
 }
 export interface IregisterProps {
     name: string,
@@ -13,13 +13,13 @@ export interface IregisterProps {
     photo: FileList,
     token: string,
     message: string,
-    status: string
+    status: boolean
 }
 export interface IverifyProps {
     email: string,
     password: string,
     token: string,
-    status: string,
+    status: boolean,
     message: string,
 }
 export interface loginProps extends IloginProps {
