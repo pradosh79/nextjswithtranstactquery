@@ -15,8 +15,11 @@ import {
 import axios from 'axios';
 import { useProductUpdate } from '../../../customhooks/queries/product.query.hooks';
 import { useRouter } from 'next/navigation';
+import { productDetail } from "@/typeScripts/product.interface";
+
 
 export default function ProductDetails() {
+  
     const params = useParams();
     const { mutateAsync, isPending } = useProductUpdate();
     const productId = params?.id as string | undefined;
@@ -46,7 +49,7 @@ export default function ProductDetails() {
         }
       }, [product, reset]);
     
-      const onSubmit = async (data: ProductFormValues) => {
+      const onSubmit = async (data: productDetail) => {
         try {
           const payload = {
             ...data,

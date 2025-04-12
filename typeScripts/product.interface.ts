@@ -16,12 +16,25 @@ export interface IproductCreateProps {
     status: number
 }
 
+// export interface IproducteditProps {
+//   name:string,
+//   price:string,
+//   description:string,
+//   category:string,
+//   token: string,
+//   message: string,
+//   status: number
+// }
+
 export interface IproductDetailsProps {
     id: number;
-    name: string;
-    description: string;
-    category: string;
-    price: number;
+    name:string,
+    price:string,
+    description:string,
+    category:string,
+    token: string,
+    message: string,
+    status: number
   }
 
   export interface IproductDeleteProps {
