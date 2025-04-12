@@ -13,7 +13,6 @@ export const loginMutation = (): UseMutationResult<loginProps, unknown> => {
     return useMutation<loginProps, void, unknown>({
         mutationFn: userLoginFn,
         onSuccess: (res) => {
-            console.log(res);
             const { token, status, message,user } = res || {}
             if (status === true && token) {
                 cookie.set("token", token, { path: "/", secure: true })
