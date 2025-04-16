@@ -2,7 +2,7 @@ import { useMutation, UseMutationResult, useQuery, UseQueryResult } from "@tanst
 import { Cookies } from "react-cookie";
 import { useGlobalHooks } from "../globalHooks/globalhooks";
 import toast from "react-hot-toast";
-import { productCreateProps,productList,productDetail,productDelete } from "@/typeScripts/product.interface";
+import { productCreateProps,productList,productDetail,productDelete,ProductListResponse } from "@/typeScripts/product.interface";
 import { productCreateFn } from "@/api/functions/product.create";
 import { productListFn } from "@/api/functions/product.list";
 import { productDetailsFn } from "@/api/functions/product.details";
@@ -66,9 +66,11 @@ export const productCreateMutation = (): UseMutationResult<
 export const productListQuery = (): UseQueryResult<productList, unknown> => {
     return useQuery({
         queryKey: ["PRODUCT"],  
-        queryFn: productListFn
+        queryFn: productListFn,
+        retry: false,
     });
 };
+
 
 export const productDetailsQuery = (
     id: string | null

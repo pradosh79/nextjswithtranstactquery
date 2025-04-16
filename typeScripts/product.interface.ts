@@ -4,6 +4,9 @@ export interface IproductListProps {
   description: string;
   category: string;
   price: number;
+  token: string,
+  message: string,
+  status: number
 }
 
 export interface IproductCreateProps {
@@ -16,15 +19,9 @@ export interface IproductCreateProps {
     status: number
 }
 
-// export interface IproducteditProps {
-//   name:string,
-//   price:string,
-//   description:string,
-//   category:string,
-//   token: string,
-//   message: string,
-//   status: number
-// }
+export interface ProductListResponse {
+  product: Product[]; // ✅ product is an array
+}
 
 export interface IproductDetailsProps {
     id: number;

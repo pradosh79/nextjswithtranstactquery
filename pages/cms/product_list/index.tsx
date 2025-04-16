@@ -1,9 +1,6 @@
 import React from 'react';
-import { useQuery } from "@tanstack/react-query";
-import { IProductListProps } from "../../../typeScripts/product.interface";
-import { productListQuery, useProductDeleteMutation } from '@/customhooks/queries/product.query.hooks';
 import { useRouter } from 'next/router';
-import Link from "next/link";
+import { productListQuery, useProductDeleteMutation } from '@/customhooks/queries/product.query.hooks';
 import {
   Box,
   Card,
@@ -17,9 +14,20 @@ import {
 import { Delete, Edit } from '@mui/icons-material';
 
 export default function ProductList() {
+  const router = useRouter();
   const { data, isLoading, isError, error, isPending: isDeleting } = productListQuery();
   const { mutate: deleteProduct } = useProductDeleteMutation();
-  const router = useRouter();
+
+  const handleEdit = (id: string) => {
+    router.push(`/cms/product_details/${id}`);
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm("Are you sure you want to delete this product?")) {
+      deleteProduct(Number(id));
+      window.location.reload(); // or use queryClient.invalidateQueries
+    }
+  };
 
   if (isLoading) {
     return (
@@ -39,18 +47,8 @@ export default function ProductList() {
     );
   }
 
-  const handleEdit = (id: string) => {
-    router.push(`/cms/product_details/${id}`);
-  };
-
-  const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this product?")) {
-      deleteProduct(Number(id)); // make sure your backend expects a number
-      window.location.reload(); // optional: better to use queryClient.invalidateQueries
-    }
-  };
-
-  const products = data?.product ?? []; // fallback to empty array if undefined
+  // ✅ Safe fallback to an empty array
+  const products = data?.product ?? [];
 
   return (
     <Box sx={{ p: 4 }}>
@@ -71,15 +69,7 @@ export default function ProductList() {
                 )}
               </CardContent>
 
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: 8,
-                  right: 8,
-                  display: 'flex',
-                  gap: 1,
-                }}
-              >
+              <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 1 }}>
                 <Tooltip title="Edit">
                   <IconButton
                     color="primary"
