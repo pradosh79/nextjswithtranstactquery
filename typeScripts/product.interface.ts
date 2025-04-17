@@ -4,9 +4,9 @@ export interface IproductListProps {
   description: string;
   category: string;
   price: number;
-  token: string,
-  message: string,
-  status: number
+  // token: string,
+  // message: string,
+  // status: number
 }
 
 export interface IproductCreateProps {
