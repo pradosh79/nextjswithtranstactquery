@@ -11,7 +11,7 @@ import {
   CircularProgress,
   Button,
 } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
 export default function ProductList() {
   const router = useRouter();
@@ -28,21 +28,22 @@ export default function ProductList() {
     deleteProduct(Number(id), {
       onSettled: () => {
         setLoadingProducts((prev) => ({ ...prev, [id]: false }));
-        window.location.reload(); // or use queryClient.invalidateQueries
+        window.location.reload(); // optional: use queryClient.invalidateQueries
       },
     });
   };
 
-  const columns = [
+  const columns: GridColDef[] = [
     { field: "name", headerName: "Product Name", flex: 1 },
     { field: "description", headerName: "Description", flex: 2 },
     {
       field: "price",
       headerName: "Price",
+      type: "number",
       flex: 1,
       align: "right",
       headerAlign: "right",
-      renderCell: (params: any) => `₹${params.value ?? 0}`,
+      renderCell: (params) => `₹${params.value ?? 0}`,
     },
     {
       field: "actions",
@@ -51,7 +52,7 @@ export default function ProductList() {
       flex: 1,
       align: "center",
       headerAlign: "center",
-      renderCell: (params: any) => (
+      renderCell: (params) => (
         <Box display="flex" gap={2}>
           <Button
             variant="contained"
@@ -97,7 +98,7 @@ export default function ProductList() {
 
   const products = (data?.product || []).map((p: any) => ({
     ...p,
-    price: Number(p.price) || 0, // Ensures price is a number
+    price: Number(p.price) || 0, // Ensure price is numeric
   }));
 
   return (
