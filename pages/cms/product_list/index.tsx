@@ -48,7 +48,7 @@ export default function ProductList() {
   }
 
   // ✅ Safe fallback to an empty array
-  const products = data?.product ?? [];
+  const products= data?.product ?? [];
 
   return (
     <Box sx={{ p: 4 }}>
