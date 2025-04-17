@@ -1,33 +1,81 @@
-import React from 'react';
-import { useRouter } from 'next/router';
-import { productListQuery, useProductDeleteMutation } from '@/customhooks/queries/product.query.hooks';
+import React, { useState } from "react";
+import { useRouter } from "next/router";
+import {
+  productListQuery,
+  useProductDeleteMutation,
+} from "@/customhooks/queries/product.query.hooks";
 import {
   Box,
-  Card,
-  CardContent,
   Typography,
-  Grid,
-  IconButton,
+  Paper,
   CircularProgress,
-  Tooltip,
-} from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material';
+  Button,
+} from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 
 export default function ProductList() {
   const router = useRouter();
-  const { data, isLoading, isError, error, isPending: isDeleting } = productListQuery();
+  const { data, isLoading, isError, error } = productListQuery();
   const { mutate: deleteProduct } = useProductDeleteMutation();
-
-  const handleEdit = (id: string) => {
-    router.push(`/cms/product_details/${id}`);
-  };
+  const [loadingProducts, setLoadingProducts] = useState<{ [key: string]: boolean }>({});
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this product?")) {
-      deleteProduct(Number(id));
-      window.location.reload(); // or use queryClient.invalidateQueries
-    }
+    const confirmDelete = confirm("Are you sure you want to delete this product?");
+    if (!confirmDelete) return;
+
+    setLoadingProducts((prev) => ({ ...prev, [id]: true }));
+
+    deleteProduct(Number(id), {
+      onSettled: () => {
+        setLoadingProducts((prev) => ({ ...prev, [id]: false }));
+        window.location.reload(); // or use queryClient.invalidateQueries
+      },
+    });
   };
+
+  const columns = [
+    { field: "name", headerName: "Product Name", flex: 1 },
+    { field: "description", headerName: "Description", flex: 2 },
+    {
+      field: "price",
+      headerName: "Price",
+      flex: 1,
+      align: "right",
+      headerAlign: "right",
+      renderCell: (params: any) => `₹${params.value ?? 0}`,
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      sortable: false,
+      flex: 1,
+      align: "center",
+      headerAlign: "center",
+      renderCell: (params: any) => (
+        <Box display="flex" gap={2}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => router.push(`/cms/product_details/${params.row._id}`)}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => handleDelete(params.row._id)}
+            disabled={loadingProducts[params.row._id]}
+          >
+            {loadingProducts[params.row._id] ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              "Delete"
+            )}
+          </Button>
+        </Box>
+      ),
+    },
+  ];
 
   if (isLoading) {
     return (
@@ -47,54 +95,25 @@ export default function ProductList() {
     );
   }
 
-  // ✅ Safe fallback to an empty array
-  const products= data?.product ?? [];
+  const products = (data?.product || []).map((p: any) => ({
+    ...p,
+    price: Number(p.price) || 0, // Ensures price is a number
+  }));
 
   return (
-    <Box sx={{ p: 4 }}>
+    <Paper sx={{ p: 3, width: "100%", height: 500 }}>
       <Typography variant="h4" gutterBottom>
         Product List
       </Typography>
-
-      <Grid container spacing={3}>
-        {products.map((item:any) => (
-          <Grid item xs={12} sm={6} md={4} key={item._id}>
-            <Card sx={{ position: 'relative', minHeight: 200 }}>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>{item.name}</Typography>
-                <Typography>Category: {item.category}</Typography>
-                <Typography>Price: ₹{item.price}</Typography>
-                {item.description && (
-                  <Typography>Description: {item.description}</Typography>
-                )}
-              </CardContent>
-
-              <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 1 }}>
-                <Tooltip title="Edit">
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleEdit(item._id)}
-                    sx={{ cursor: 'pointer' }}
-                  >
-                    <Edit />
-                  </IconButton>
-                </Tooltip>
-
-                <Tooltip title="Delete">
-                  <IconButton
-                    color="secondary"
-                    onClick={() => handleDelete(item._id)}
-                    disabled={isDeleting}
-                    sx={{ cursor: isDeleting ? 'not-allowed' : 'pointer' }}
-                  >
-                    <Delete />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
+      <DataGrid
+        rows={products}
+        columns={columns}
+        pageSizeOptions={[5, 10, 25]}
+        checkboxSelection
+        disableRowSelectionOnClick
+        sx={{ border: 0 }}
+        getRowId={(row) => row._id}
+      />
+    </Paper>
   );
 }
