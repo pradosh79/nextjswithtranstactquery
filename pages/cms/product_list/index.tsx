@@ -57,7 +57,7 @@ export default function ProductList() {
       </Typography>
 
       <Grid container spacing={3}>
-        {products.map((item) => (
+        {products.map((item:any) => (
           <Grid item xs={12} sm={6} md={4} key={item._id}>
             <Card sx={{ position: 'relative', minHeight: 200 }}>
               <CardContent>

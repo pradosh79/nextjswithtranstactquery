@@ -7,6 +7,7 @@ export interface IproductListProps {
   // token: string,
   // message: string,
   // status: number
+  map:any,
 }
 
 export interface IproductCreateProps {
