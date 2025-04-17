@@ -36,7 +36,10 @@ export const registerMutation = (): UseMutationResult<registerProps, unknown> =>
         mutationFn: userRegisterFn,
         onSuccess: (res) => {
             const {token,status, message,user } = res || {}
-            if (status === true && token) {
+            //console.log(status,'status');
+            //console.log(token,'token');
+
+            if (status === true) {
                 //alert('Pradosh');
                 cookie.set("token", token, { path: "/registeration", secure: true })
                 localStorage.setItem("user", JSON.stringify(user))
