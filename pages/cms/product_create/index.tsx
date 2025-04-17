@@ -1,106 +1,133 @@
-import axiosInstance from "@/api/axios/axios";
-import { endPoints } from "@/api/endpoints/endpoint";
-import { IproductListProps } from "@/typeScripts/product.interface";
-import { productCreateMutation } from '../../../customhooks/queries/product.query.hooks';
-import { Paper, Typography, TextField, Button, Box, Grid} from '@mui/material';
-import Link from 'next/link';
-import { FieldValues, useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import { useRouter } from "next/router";
+import {
+  productListQuery,
+  useProductDeleteMutation,
+} from "@/customhooks/queries/product.query.hooks";
+import {
+  Box,
+  Typography,
+  Paper,
+  CircularProgress,
+  Button,
+} from "@mui/material";
+import {
+  DataGrid,
+  GridColDef,
+  GridRenderCellParams,
+} from "@mui/x-data-grid";
 
-export default function productCreate() {
-  const { register, handleSubmit, formState: { errors }, watch } = useForm();
-  const { mutate, isPending } = productCreateMutation();
+// Define product type
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  price: number | string;
+}
+
+export default function ProductList(): JSX.Element {
   const router = useRouter();
-  const onSubmit = async (createData: FieldValues) => {
-     //console.log(createData);
-    const { name, price, description, category } = createData as { name: string, price: string, description: string, category: string };
-    const formdata = new URLSearchParams();
-    formdata.append("name", name);
-    formdata.append("price", price);
-    formdata.append("description", description);
-    formdata.append("category", category);
-    mutate(formdata, {
-      onSuccess: () => {
-         router.push("/cms/product_list");
+  const { data, isLoading, isError, error } = productListQuery();
+  const { mutate: deleteProduct } = useProductDeleteMutation();
+  const [loadingProducts, setLoadingProducts] = useState<Record<string, boolean>>({});
+
+  const handleDelete = (id: string) => {
+    const confirmDelete = confirm("Are you sure you want to delete this product?");
+    if (!confirmDelete) return;
+
+    setLoadingProducts((prev) => ({ ...prev, [id]: true }));
+
+    deleteProduct(Number(id), {
+      onSettled: () => {
+        setLoadingProducts((prev) => ({ ...prev, [id]: false }));
+        window.location.reload(); // optional: use queryClient.invalidateQueries
       },
     });
-    console.log(formdata);
   };
-  return (
-    <div>
-  <Grid
-    container
-    justifyContent="center"
-    alignItems="center"
-    sx={{ height: '100vh', px: 2 }}
-  >
-    <Grid item xs={12} sm={10} md={6} lg={4}>
-      <Paper
-        elevation={3}
-        sx={{
-          p: 4,
-          mx: 'auto',
-          borderRadius: 3,
-        }}
-      >
-        <Typography variant="h5" fontWeight="bold" gutterBottom align="center">
-          Create Product
-        </Typography>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <TextField
-            {...register("name", { required: "Name is required" })}
-            label="Product Name"
-            variant="outlined"
-            margin="normal"
-            fullWidth
-            error={!!errors.name}
-          />
-
-          <TextField
-            {...register("price", { required: "Price is required" })}
-            label="Price"
-            variant="outlined"
-            margin="normal"
-            fullWidth
-            error={!!errors.price}
-          />
-
-          <TextField
-            {...register("description", { required: "Description is required" })}
-            label="Description"
-            variant="outlined"
-            margin="normal"
-            fullWidth
-            multiline
-            rows={3}
-            error={!!errors.description}
-          />
-
-          <TextField
-            {...register("category", { required: "Category is required" })}
-            label="Category"
-            variant="outlined"
-            margin="normal"
-            fullWidth
-            error={!!errors.category}
-          />
-
+  const columns: GridColDef[] = [
+    { field: "name", headerName: "Product Name", flex: 1 },
+    { field: "description", headerName: "Description", flex: 2 },
+    {
+      field: "price",
+      headerName: "Price",
+      type: "number",
+      flex: 1,
+      align: "right",
+      headerAlign: "right",
+      renderCell: (params: GridRenderCellParams<any, number | string>) =>
+        `₹${params.value ?? 0}`,
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      sortable: false,
+      flex: 1,
+      align: "center",
+      headerAlign: "center",
+      renderCell: (params: GridRenderCellParams<Product>) => (
+        <Box display="flex" gap={2}>
           <Button
             variant="contained"
             color="primary"
-            fullWidth
-            size="large"
-            sx={{ mt: 3, py: 1.5 }}
-            type="submit"
-            disabled={isPending}
+            onClick={() => router.push(`/cms/product_details/${params.row._id}`)}
           >
-            {isPending ? "Creating..." : "Create"}
+            Edit
           </Button>
-        </form>
-      </Paper>
-    </Grid>
-  </Grid>
-</div>
-  )
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => handleDelete(params.row._id)}
+            disabled={loadingProducts[params.row._id]}
+          >
+            {loadingProducts[params.row._id] ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              "Delete"
+            )}
+          </Button>
+        </Box>
+      ),
+    },
+  ];
+
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Box textAlign="center" mt={4}>
+        <Typography color="error">
+          Error: {error instanceof Error ? error.message : "Something went wrong"}
+        </Typography>
+      </Box>
+    );
+  }
+
+  const products: Product[] = (data?.product || []).map((p: Product) => ({
+    ...p,
+    price: Number(p.price) || 0,
+  }));
+
+  return (
+    <Paper sx={{ p: 3, width: "100%", height: 500 }}>
+      <Typography variant="h4" gutterBottom>
+        Product List
+      </Typography>
+      <DataGrid
+        rows={products}
+        columns={columns}
+        pageSizeOptions={[5, 10, 25]}
+        checkboxSelection
+        disableRowSelectionOnClick
+        sx={{ border: 0 }}
+        getRowId={(row) => row._id}
+      />
+    </Paper>
+  );
 }
