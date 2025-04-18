@@ -1,13 +1,22 @@
-import React, { useState } from 'react'
-import axiosInstance from "@/api/axios/axios";
-import { endPoints } from "@/api/endpoints/endpoint";
-import { loginMutation } from "../../../customhooks/queries/auth.query.hooks";
-import { MutationFunction } from "@tanstack/react-query";
-import { Paper, Typography, TextField, Button, Box, Grid, InputAdornment, IconButton } from '@mui/material';
-import { FieldValues, useForm } from "react-hook-form";
+import React, { useState } from 'react';
+import { useRouter } from 'next/router';
+import { useForm, FieldValues } from 'react-hook-form';
+import {
+    Box,
+    Grid,
+    Paper,
+    Typography,
+    TextField,
+    Button,
+    InputAdornment,
+    IconButton,
+    useTheme,
+    useMediaQuery,
+} from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { useRouter  } from 'next/router';
-
+import { loginMutation } from '../../../customhooks/queries/auth.query.hooks';
+import NextLink from 'next/link';
+import { Link as MuiLink } from '@mui/material';
 
 export default function LogIn() {
     const router = useRouter();
@@ -15,119 +24,138 @@ export default function LogIn() {
     const { mutate, isPending } = loginMutation();
     const [showPassword, setShowPassword] = useState(false);
 
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
     const handleTogglePassword = () => {
         setShowPassword((prev) => !prev);
-      };
+    };
 
-
-
-    const onSubmit = async (formData: FieldValues) => {
+    const onSubmit = (formData: FieldValues) => {
         const { email, password } = formData as { email: string; password: string };
-        const formdata = new URLSearchParams();
-        formdata.append("email", email);
-        formdata.append("password", password);
         mutate(formData, {
             onSuccess: () => {
-                router.push("/cms/product_list");
+                router.push('/cms/product_list');
             },
         });
-        //console.log(formData);
-        //router.push("/cms/list");
     };
+
     return (
-        <>
-            <Box sx={{ height: '100vh' }}>
-                <Grid container spacing={2} sx={{ height: '70%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Box sx={{ minHeight: '100vh', backgroundColor: '#f5f5f5', py: { xs: 4, md: 10 }, px: { xs: 2, sm: 4 } }}>
+            <Grid
+                container
+                spacing={4}
+                justifyContent="center"
+                alignItems="center"
+            >
+                {/* Login Form Section */}
+                <Grid item xs={12} md={6}>
+                    <Paper elevation={3} sx={{ p: { xs: 3, sm: 4 }, maxWidth: 500, mx: 'auto' }}>
+                        <Typography variant="h4" gutterBottom align="center" sx={{ color: '#4F46E5' }}>
+                            Login Page
+                        </Typography>
 
-                    <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <Paper elevation={3} sx={{ padding: 4, maxWidth: 450, width: '100%' }}>
-                            <Typography variant="h4" gutterBottom align="center" sx={{ color: '#4F46E5' }}>
-                                Login Form
-                            </Typography>
+                        <Typography variant="body1" align="center" sx={{ mb: 3, color: 'text.secondary' }}>
+                            Login using your registered email and password.
+                        </Typography>
 
-                            <form onSubmit={handleSubmit(onSubmit)}>
-                                <TextField
-                                    {...register("email", {
-                                        required: "Email is required",
-                                        pattern: {
-                                            value: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-                                            message: "Invalid email format",
-                                        },
-                                    })}
-                                    label="Email Address"
-                                    variant="outlined"
-                                    fullWidth
-                                    sx={{ marginBottom: 2 }}
-                                // error={!!errors.email}
-                                // helperText={errors.email && errors.email.message}
-                                />{errors.email && <span style={{ color: "red" }}>
-                                    {errors.email && `*${errors.email.message}`}
-                                </span>}
+                        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                            <TextField
+                                {...register("email", {
+                                    required: "Email is required",
+                                    pattern: {
+                                        value: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+                                        message: "Invalid email format",
+                                    },
+                                })}
+                                label="Email Address"
+                                variant="outlined"
+                                fullWidth
+                                sx={{ marginBottom: 2 }}
+                            />
+                            {errors.email && (
+                                <Typography variant="body2" color="error" sx={{ mb: 1 }}>
+                                    *{String(errors.email.message)}
+                                </Typography>
+                            )}
 
-                                <TextField
-                                    {...register("password", {
-                                        required: "Password is required",
-                                    })}
-                                    label="Password"
-                                    type={showPassword ? "text" : "password"}
-                                    fullWidth
-                                    variant="outlined"
-                                    InputProps={{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <IconButton onClick={handleTogglePassword} edge="end">
-                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                                                </IconButton>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                    sx={{ marginBottom: 2 }}
-                                // error={!!errors.password}
-                                // helperText={errors.password && errors.password.message}
-                                />{errors.password && <span style={{ color: "red" }}>
-                                    {errors.password && `*${errors.password.message}`}
-                                </span>}
+                            <TextField
+                                {...register("password", {
+                                    required: "Password is required",
+                                })}
+                                label="Password"
+                                type={showPassword ? "text" : "password"}
+                                variant="outlined"
+                                fullWidth
+                                sx={{ marginBottom: 2 }}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton onClick={handleTogglePassword} edge="end">
+                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                            {errors.password && (
+                                <Typography variant="body2" color="error" sx={{ mb: 2 }}>
+                                    *{String(errors.password.message)}
+                                </Typography>
+                            )}
 
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                fullWidth
+                                sx={{ padding: 1.5 }}
+                            >
+                                {isPending ? 'Please Wait...' : 'Log in'}
+                            </Button>
+                        </form>
+                        <Typography variant="body2" align="center" sx={{ mt: 3 }}>
+                            Don&apos;t have an account?{' '}
+                            <MuiLink
+                                component={NextLink}
+                                href="/auth/registration"
+                                underline="hover"
+                                sx={{ color: '#4F46E5', fontWeight: 500 }}
+                            >
+                                Register
+                            </MuiLink>
+                        </Typography>
+                    </Paper>
+                </Grid>
 
-
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                    color="primary"
-                                    fullWidth
-                                    sx={{ padding: 1.5 }}
-                                // disabled={loading}
-                                >
-                                    {isPending ? 'Please Wait...' : 'Log in'}
-
-                                </Button>
-                            </form>
-                        </Paper>
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                        <Box sx={{
-                            height: '36vh',
+                {/* Image Section */}
+        
+                <Grid item xs={12} md={6}>
+                    <Box
+                        sx={{
+                            height: { xs: 250, sm: 300, md: '100%' },
                             width: '100%',
                             backgroundImage: 'url(https://pagedone.io/asset/uploads/1696488602.png)',
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
-                            borderTopRightRadius: '16px',
-                            borderBottomRightRadius: '16px',
+                            borderRadius: 3,
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
+                            px: 3,
+                            textAlign: 'center',
                             color: 'white',
-                            padding: 3,
-                        }}>
-                            <Typography variant="h4" sx={{ fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)' }}>
-                                Login Page
-                            </Typography>
-                        </Box>
-                    </Grid>
-
+                        }}
+                    >
+                        <Typography
+                            variant={isMobile ? 'h5' : 'h4'}
+                            sx={{ fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)' }}
+                        >
+                            Login Page
+                        </Typography>
+                    </Box>
                 </Grid>
-            </Box>
-        </>
-    )
+            </Grid>
+        </Box>
+    );
 }

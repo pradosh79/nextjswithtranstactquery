@@ -13,6 +13,8 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
+import toast from "react-hot-toast";
+
 
 const pages = [{ label: "Add Products", path: "/cms/product_create" }];
 const settings = ["Profile", "Dashboard", "Logout"];
@@ -48,8 +50,11 @@ export default function ResponsiveAppBar() {
     handleCloseUserMenu();
 
     if (setting === "Logout") {
-      localStorage.removeItem("user");
+      setTimeout(() => {
+        localStorage.removeItem("user");
+      }, 2000);
       router.push("/auth/login");
+      toast.success('Logout successfully');
     } else if (setting === "Profile") {
       router.push("/auth/profile");
     } else if (setting === "Dashboard") {
