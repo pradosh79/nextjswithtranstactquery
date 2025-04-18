@@ -17,7 +17,7 @@ import toast from "react-hot-toast";
 
 
 const pages = [{ label: "Add Products", path: "/cms/product_create" }];
-const settings = ["Profile", "Dashboard", "Logout"];
+const settings = ["Profile", "Dashboard", "Password Change", "Logout"];
 
 export default function ResponsiveAppBar() {
   const router = useRouter();
@@ -60,6 +60,10 @@ export default function ResponsiveAppBar() {
     } else if (setting === "Dashboard") {
       router.push("/cms/product_list");
     }
+    else if (setting === "Password Change") {
+      router.push("/auth/passwordchange");
+    }
+  
   };
 
   return (

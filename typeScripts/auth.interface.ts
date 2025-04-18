@@ -22,6 +22,13 @@ export interface IverifyProps {
     status: boolean,
     message: string,
 }
+interface IPasswordFormInputs {
+    password: string;
+    token: string,
+    status: boolean,
+    message: string,
+  }
+
 export interface loginProps extends IloginProps {
     user: IloginProps
 }
@@ -32,4 +39,8 @@ export interface registerProps extends IregisterProps {
 
 export interface verifyProps extends IverifyProps {
     user: IverifyProps
+}
+
+export interface passwordupdateProps extends IPasswordFormInputs {
+    user: IPasswordFormInputs
 }
